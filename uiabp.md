@@ -135,7 +135,7 @@ So some variations:
 
 In other words, it’s out of scope. Tests ultimately check a set of rules: given A, if B, then C. But not every test has to check every rule involved with what they’re testing, and usually shouldn’t. Otherwise, they can get too complicated and have poor isolation.
 
-Instead, some you don’t test at all because they’re not really behavior you own (e.g., if I disable a button it turns gray, if you’re on a standard framework that handles that for you), or they’re being tested in some other test, or because they’re low-level and you’re testing black box, or whatever.
+Instead, some you don’t test at all because they’re not really behavior you own (e.g., if I disable a button it turns gray, if you’re on a standard framework that handles that for you), or they’re being tested in some other test, or maybe because they’re low-level internal side effects and you’re strictly testing black box.
 
 Sometimes they’re just prohibitively hard to determine from inside the test--it involves filesystem, but your test has no filesystem access, or involves a check of some other external that is hard to mock. Maybe it's easier to ignore it than accommodate it, even taking risk into account.
 
