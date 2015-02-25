@@ -446,13 +446,13 @@ So let's take it one step further:
         
         camera = Camera.launch()
         for i in xrange(photo_count):
-            take_a_photo()
+            camera.take_a_photo()
         
-        assert(get_thumbnail_count() == expected_thumbnails, ...)
-        assert(get_file_count() == expected_files, ...)
+        assert(camera.get_thumbnail_count() == expected_thumbnails, ...)
+        assert(camera.get_file_count() == expected_files, ...)
 
 That's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
 There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions.
 
-You should never have to work backwards from an assertion to figure out the rule.
+You should never have to work backwards from an assertion to figure out the rule being tested.
