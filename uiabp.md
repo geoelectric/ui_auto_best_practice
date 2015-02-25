@@ -350,13 +350,19 @@ Those types of tests end up talking directly to controls, creating more customiz
 
 * Logic should be kept very simple in a given function. Long or winding functions are warning signs.
 
-* Don’t construct strings, especially ones referring to externals, like URLs, selectors, control names, etc.
+* Don’t construct strings via concatenation or substitution, especially ones referring to externals, like URLs, selectors, control names, etc.
 
     It adds an unnecessary level of complexity, and since you don’t actually own those strings they may change out from under you in a way that makes your construction not work anymore. Acceptance tests also often need to be localized so they can be run on l10n builds, and constructed strings aren’t localizable.
 
-* Don’t rely on comments or error messages over proper naming and explicit code.
+* Don’t rely on comments or error messages over proper naming and explicit, clear code.
 
-    The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages.
+    The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages, assuming they even supply them.
+    
+    More to the point, if you have to read the code, realize you don't know what it means, read the error/comment, then read the code again, you've already read three times as much as you should have.
+    
+    Finally, part of code review is checking that comments and error messages are accurate. If you can't understand the code without them, you won't be able to do this.
+    
+    Test code has no tests. Clarity and review is all we have. Optimize for it.
 
 ### And there are some test best practices as well:
 
