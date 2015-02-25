@@ -116,12 +116,12 @@ For the purposes of this example, assume for now that we don’t know when the p
         assert(…verify page…)
         vwizard.next()
         
-    if vwizard.current_page == vwizard.OPTIONAL_PAGE:
+        if vwizard.current_page == vwizard.OPTIONAL_PAGE:
+            assert(…verify page…)
+            vwizard.next()
+        
         assert(…verify page…)
-        vwizard.next()
-
-    assert(…verify page…)
-    vwizard.finish()
+        vwizard.finish()
 
 This is OK, given that it’s random.
 
