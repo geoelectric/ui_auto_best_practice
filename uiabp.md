@@ -178,7 +178,7 @@ So let's say we've figured out that the impetus for `OPTIONAL_PAGE` is having a 
         …verify page…
         vwizard.next()
 
-What’s changed is that based on what I know now of the back end's API status, as assigned to `has_a_sim`, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
+What’s changed is that based on what I know now of the back end's API status, as assigned to the much more meaningful name `has_a_sim`, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
 
 So now you’re testing a  different rule:
 
@@ -295,18 +295,18 @@ The smart thing to do is account for that. This is what constants are made for.
 
 So in this case, you take a hybrid approach between the last two methods.
 
-    has_a_sim = True
+    HAS_A_SIM = True
     …
-    if has_a_sim:
+    if HAS_A_SIM:
         assertIs(vwizard.current_page, vwizard.OPTIONAL_PAGE, …)
         …verify page…
         vwizard.next()
 
-At first glance, this seems superfluous. If `has_a_sim` is assumed, why define a constant and put an if on it?
+At first glance, this seems superfluous. If having a SIM is assumed, why define a constant and put an if on it?
 
 Because it solves the problems above:
 
-* You’ve correctly documented the behavior of the system, independently of any assumptions you’ve put on its external state. The assumptions are encapsulated in `has_a_sim`.
+* You’ve correctly documented the behavior of the system, independently of any assumptions you’ve put on its external state. The assumptions are encapsulated in `HAS_A_SIM`.
 
 * You’ve made it clear why, should your assumption be incorrect in the future, the test is now failing in that spot.
 
@@ -320,7 +320,7 @@ vs.
 
     has_a_sim = True
     …
-    assertEqual(status_bar.has_sim_icon, has_a_sim, ...)
+    assertEqual(status_bar.has_sim_icon, HAS_A_SIM, ...)
 
 One of these is more accurate to the true behavior of the system than the other.
 
@@ -396,6 +396,22 @@ Those types of tests end up talking directly to controls, creating more customiz
 
     The problem with magic values is that you often don't know their significance. This is bad everywhere, but especially bad in a verification as that will determine the correctness of the test. Naming these values both better documents the test and makes the code significantly more reviewable. This is covered more below.
 
+* Give every verification and Wait a meaningful error message to the operation or verification being performed.
+
+    A test failure log should, as much as possible, stand alone in calling out what the problem is. Having a default error message like "False is not equal to True" will not communicate that effectively, whereas "Should have shown a SIM icon" will.
+    
+    Remember also that Waits are a form of implicit verification. These should also be given meaningful error messages, like "Calculator should launch," not "Timeout on e = find_element(calculator_main_selector).isVisible()"
+
+* Make sure you know whether verification and Wait messages are supposed to reflect an error condition or a success condition.
+
+    This varies from test system to test system. Some systems standardize on something like "FAIL: Calculator dialog appeared", others standardize on "FAIL: Calculator dialog did not appear". 
+    
+    The difference is usually whether they have a verbose mode that prints all messages even on pass. If so, they usually go with the first one. If not, they go with the second one since it only appears on an error condition.
+    
+    One way to handle this is to make the message reflect the expected behavior, like "FAIL: Calculator dialog should appear." By making the message call out the expected behavior, rather than just the actual behavior, it will make sense under either standard. 
+    
+    For boolean checks, just calling out the expected behavior is sufficient; the actual behavior is implied by the PASS/FAIL. If verifying against other types of values, like a specific count, a construct like "Should have %d icons, actually have %d" % (expected, actual) will serve a similar purpose.
+
 * Generally, don’t verify against an expression. Assign expressions to variables, then verify that.
 
     This does not apply to simple unary operations like negating flags or simple comparisons like X == something, but does to most other kinds of expressions.
@@ -407,16 +423,16 @@ Those types of tests end up talking directly to controls, creating more customiz
     If the rule is that when I take two pictures, I get two thumbnails but twice as many photo files (HDR and non-HDR?) it’s perfectly appropriate to have:
 
         def test_take_photos(count):
-            expected_thumbnails = count
-            expected_files = 2 * count
+            EXPECTED_THUMBNAILS = count
+            EXPECTED_FILES = 2 * count
             
             camera = Camera.launch()
             
             for i in xrange(count):
                 camera.take_photo()
             
-            assertEqual(camera.get_thumbnail_count, expected_thumbnails, …)
-            assertEqual(camera.get_file_count(), expected_files, …)
+            assertEqual(camera.get_thumbnail_count, EXPECTED_THUMBNAILS, …)
+            assertEqual(camera.get_file_count(), EXPECTED_FILES, …)
     
     This corresponds exactly to the rules:
     
@@ -466,8 +482,8 @@ But what if I didn't have a `count` variable?
 
 This is about as simple as it gets. It's certainly concise and easy to read. I don't like the magic numbers, but we could fix that pretty easily with:
 
-        expected_thumbnails = 2
-        expected_files = 4
+        EXPECTED_THUMBNAILS = 2
+        EXPECTED_FILES = 4
 
 But even with that, now I have no real clue what the business rules are that are being verified. I'm smart enough to realize that probably means that the thumbnail count matches the number of photos, but the files... Do I expect photos * 2 = 4 or photos ^ 2 = 4 or photos + 2 = 4 or what? 
 
@@ -476,28 +492,28 @@ I wouldn't be able to review this for correctness--especially since 9 times out 
 So let's take it one step further:
 
     def test_take_photos():
-        photo_count = 2
-        expected_thumbnails = photo_count
-        expected_files = photo_count * 2
+        PHOTO_COUNT = 2
+        EXPECTED_THUMBNAILS = PHOTO_COUNT
+        EXPECTED_FILES = PHOTO_COUNT * 2
         
         camera = Camera.launch()
         
         for i in xrange(photo_count):
             camera.take_a_photo()
         
-        assertEqual(camera.get_thumbnail_count(), expected_thumbnails, ...)
-        assertEqual(camera.get_file_count(), expected_files, ...)
+        assertEqual(camera.get_thumbnail_count(), EXPECTED_THUMBNAILS, ...)
+        assertEqual(camera.get_file_count(), EXPECTED_FILES, ...)
 
-You might recognize this as a similar solution to "We do care, and want or need to supply the information, but it *might* vary." above.
+You might recognize this as a similar solution to "We do care, and want or need to supply the information, but it *might* vary" above. We essentially treat `PHOTO_COUNT` as if it were a test parameter, only we define it as a constant within the test function.
 
 And that's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
-We could remove `photo_count` and have:
+We could remove `PHOTO_COUNT` and have:
 
-    expected_thumbnails = 2
-    expected_files = expected_thumbnails * 2
+    EXPECTED_THUMBNAILS = 2
+    EXPECTED_FILES = EXPECTED_THUMBNAILS * 2
     
-That would address the core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `photo_count` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
+That would address the core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `PHOTO_COUNT` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
 
 Finally, you might consider patterns around data-driven tests and try:
 
