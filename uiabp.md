@@ -159,36 +159,38 @@ For a UI test, this usually means getting info from either from the back end or 
 
 Since the information is gathered at runtime, this necessarily means parameterized logic, with the parameter being the available information. Splitting the test and choosing one or the other isn’t a possibility at all, because you won’t know what path you should have taken until you’re already inside the test.
 
-So that middle block looks like:
+So let's say we've figured out that the impetus for `OPTIONAL_PAGE` is having a SIM. That middle block looks like:
 
-    optional_condition = get_back_end_status(…)
+    has_a_sim = bool(back_end.sim_api.get_list_of_sims())
     …
-    if optional_condition:
+    if has_a_sim:
         assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
         assert(…verify page…)
         vwizard.next()
 
-What’s changed is that based on what I know now of the optional condition, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
+What’s changed is that based on what I know now of the back end's API status, as assigned to `has_a_sim`, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
 
 So now you’re testing a  different rule:
 
-Given `optional_condition` is `True`, if I hit next, I land on `OPTIONAL_PAGE`.
+Given `back_end.sim_api.get_list_of_sims()` is Truthy, if I hit next, I land on `OPTIONAL_PAGE`.
 
-What you’re not testing is the rule that leads to `optional_condition` being `True`.
+What you’re not testing is the rule that leads to `back_end.sim_api.get_list_of_sims()` being Truthy.
 
-But this can be OK, if the rule behind `optional_condition` isn’t something you’ve decided to care about. There’s a major advantage that your test will be much more robust for the things you do care about.
+But this can be OK, if the rule behind `back_end.sim_api.get_list_of_sims()` isn’t something you’ve decided to care about. There’s a major advantage that your test will be much more robust for the things you do care about, as it will adapt its behavior to the result of that function call.
 
-You can balance these concerns. Usually, internal consistency issues ultimately have a root. For example, once you have a SIM, the back end API registers it, and everything else is consistent with the back end API.
+You can balance these concerns. Usually, internal consistency issues ultimately have a root. For example, once you have a SIM, the back end API registers it, and everything else is consistent with the back end API. As a gray-box tester, you might know that this is supposed to be the case.
 
-That makes one effective compromise to make almost all of your tests aim for internal runtime consistency, except for the one test elsewhere that verifies that the root reflects the external condition, or at least spot-checks the black-box side effects separately.
+That makes one effective compromise to make almost all of your UI tests aim for checking runtime consistency with that API (or some globally visible UI element that closely reflects that API, like a status bar), except for the one test elsewhere that verifies that the API reflects the external condition.
 
-This keeps the majority of your tests very robust while still warning you if something is amiss. The individual test is less sensitive to that condition, but that's a good thing. Do you really want your whole suite failing if it doesn't have to, or just enough to warn you of the issue?
+This keeps the majority of your tests very robust while still warning you if the API malfunctions. The individual UI tests are less sensitive to a condition where the API gives an incorrect value, but that's a good thing. 
+
+Do you really want your whole suite failing if it doesn't have to, or just enough to warn you of the issue? As long as your tests use the same API the UI does for its decisions, they will continue to function and test the rest of the system.
 
 #### We do care, and we want or need to supply the information, but it will vary.
 
 Ex: “If I’ve put a SIM in the phone, the optional page pops up. Some phones don’t have SIMs”
 
-If there’s no way to gather the same info from elsewhere (let’s assume the back end can’t tell you if you have a SIM) then you have no choice. You need to supply the information to the test somehow.
+If there’s no way to gather the same info from elsewhere (maybe that back end API for SIMs doesn't exist) then you have no choice. You need to supply the information to the test somehow.
 
 And sometimes you might want to do this even if the information is available at runtime. Maybe you don't trust the system, or don't know if the accuracy of the runtime information is verified elsewhere.
 
