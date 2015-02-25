@@ -440,7 +440,7 @@ Those types of tests end up talking directly to controls, creating more customiz
     * Given _count_ times to do it, when I take that many photos I have twice that many files
 
 
-### Make the tests explicit about their assumptions and their intent.
+### Make the test automation code explicit about all aspects of the test it's performing.
 
 The last example above is explicit to a fault. I could have written:
 
@@ -463,7 +463,7 @@ This is more obvious than the shorter version:
 2. I'm now checking that the real thumbnail count matches how many times I took photos.
 3. I'm now checking that the real file count matches twice as many times I took photos.
 
-It also explains important relationships at the beginning, where they can help inform why the test was written that way to begin with. 
+Aside from breaking down any compound logic, it explains important relationships and assumptions at the beginning where they can help inform why the test was written that way to begin with. 
 
 That makes this sort of pattern useful even in languages where normally you'd declare and assign variables closest to first use. Instead, you're declaring and assigning them closest to *first relevance to the reader*, the beginning of the test. 
 
@@ -506,16 +506,16 @@ So let's take it one step further:
 
 You might recognize this as a similar solution to "We do care, and want or need to supply the information, but it *might* vary" above. We essentially treat `PHOTO_COUNT` as if it were a test parameter, only we define it as a constant within the test function.
 
-And that's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
+And that's much clearer. The assumptions are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
-We could remove `PHOTO_COUNT` and have:
+We might think `PHOTO_COUNT` is extraneous. We could remove it and have:
 
     EXPECTED_THUMBNAILS = 2
     EXPECTED_FILES = EXPECTED_THUMBNAILS * 2
     
-That would address the core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `PHOTO_COUNT` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
+That would address the core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `PHOTO_COUNT` it's absolutely clear that these two things both depend on the same variable, the number of photos taken, but not on each other. The test is more accurately communicated.
 
-Finally, you might consider patterns around data-driven tests and try:
+Finally, we might consider patterns around data-driven tests and try:
 
     def test_take_photos(count, expected_thumbnails, expected_files):
         camera = Camera.launch()
@@ -529,7 +529,7 @@ Finally, you might consider patterns around data-driven tests and try:
     test_take_photos(2, expected_thumbnails=2, expected_files=4)
     test_take_photos(3, expected_thumbnails=3, expected_files=6)
 
-But at this point, not only are you not documenting the relationship, you're actually more testing that the person who defined the test data knows the business rule than anything. "Given I take 3 photos, if test data is correct, then I have 3 thumbnails and 6 files". Not as useful, not as robust.
+But at this point, not only are we not documenting the relationship, we're actually more testing that the person who defined the test data knows the business rule than anything. "Given I take 3 photos, if test data is correct, then I have 3 thumbnails and 6 files". Not as useful, not as robust.
 
 This pattern of supplying the verification values as parameters should be reserved for instances where the expected state can't reasonably be known by the test, like whether a given login should succeed. Don't use it to avoid coding rules surrounding relationships that are part of the system; when in scope of and significant to the test, those belong in the test function.
 
