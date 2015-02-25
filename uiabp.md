@@ -10,21 +10,21 @@
 
     def test_wizard(back_and_forth=False):
         wizard = Wizard.launch()
-        assert(…verify page state…)
+        …verify page state…
         wizard.change_stuff()
         wizard.next()
         if back_and_forth:
             wizard.previous()
-            assert(…verify state still there…)
+            …verify state still there…
             wizard next()
-        assert(…verify page state…)
+        …verify page state…
         wizard.change_stuff()
         wizard next()
         if back_and_forth:
             wizard.previous()
-            assert(…verify data still there…)
+            …verify state still there…
             wizard next()
-        assert(…verify page state…)
+        …verify page state…
         wizard.change_stuff()
         # etc
 
@@ -42,7 +42,7 @@ This should be two different tests.
         login = Login.launch()
         current_page = login.attempt_login(username, password)
         succeeded = current_page != login
-        assert(succeeded == should_succeed, …)
+        assertEqual(succeeded, should_succeed, …)
 
 Elsewhere:
 
@@ -67,7 +67,7 @@ In practice, whether this is appropriate will depend on whether you're set up to
 
     def test_launch_calculator(method):
         calculator = Calculator.launch(method)
-        assert(calculator is not None, …)
+        assertIsNotNone(calculator, …)
         
     @classmethod
     def Calculator.launch(cls, method=METHOD_SHORTCUT):
@@ -113,14 +113,14 @@ For the purposes of this example, assume for now that we don’t know when the p
 
     def test_variable_wizard():
         vwizard = VWizard.launch()
-        assert(…verify page…)
+        …verify page…
         vwizard.next()
         
         if vwizard.current_page == vwizard.OPTIONAL_PAGE:
-            assert(…verify page…)
+            …verify page…
             vwizard.next()
         
-        assert(…verify page…)
+        …verify page…
         vwizard.finish()
 
 This is OK, given that it’s random.
@@ -164,8 +164,8 @@ So let's say we've figured out that the impetus for `OPTIONAL_PAGE` is having a 
     has_a_sim = bool(back_end.sim_api.get_list_of_sims())
     …
     if has_a_sim:
-        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
-        assert(…verify page…)
+        assertIs(vwizard.current_page, vwizard.OPTIONAL_PAGE, …)
+        …verify page…
         vwizard.next()
 
 What’s changed is that based on what I know now of the back end's API status, as assigned to `has_a_sim`, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
@@ -203,14 +203,14 @@ But in this particular case we have a lot of code that’s always the same and a
 For this kind of test, segmenting isn’t an awful option. It’s a wizard, so you have a natural split between pages. So it’s conceivable to split out into `verify_page_start`, `verify_page_optional`, `verify_page_finish`, and have one test that wraps the tests for start and finish pages, and another that includes optional between them.
 
     def verify_page_start():
-        assert(...verify page...)
+        ...verify page...
         
     def verify_page_optional():
         # split out for symmetry
-        assert(...verify page...)
+        ...verify page...
         
     def verify_page_end():
-        assert(...verify page...)
+        ...verify page...
         
     def test_variable_wizard_with_sim():
         vwizard = VWizard.launch()
@@ -241,8 +241,8 @@ I would only recommend splitting tests out when they have natural, cohesive spli
 Another way is to have a single test that has a maybe block, using a hint you explicitly send in:
 
     if testvars.has_a_sim:
-        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
-        assert(…verify page…)
+        assertIs(vwizard.current_page, vwizard.OPTIONAL_PAGE, …)
+        …verify page…
         vwizard.next()
 
 In this case, we’re pulling from a test variables file. Depending on how your tests are run, you can also supply this as a parameter to the test function.
@@ -260,11 +260,11 @@ This one’s easy, bake it into the test. This is just echoing the assumptions s
 
     def test_not_variable_wizard():
         nvwizard = NVWizard.launch()
-        assert(…verify page…)
+        …verify page…
         nvwizard.next()
-        assert(…verify page…)
+        …verify page…
         nvwizard.next()
-        assert(…verify page…)
+        …verify page…
         nvwizard.finish()
 
 You’re still kind of testing a rule: Given *the test designer was right that I always have a SIM*, if I hit next, I land on `OPTIONAL_PAGE`.
@@ -288,8 +288,8 @@ So in this case, you take a hybrid approach between the last two methods.
     has_a_sim = True
     …
     if has_a_sim:
-        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
-        assert(…verify page…)
+        assertIs(vwizard.current_page, vwizard.OPTIONAL_PAGE, …)
+        …verify page…
         vwizard.next()
 
 At first glance, this seems superfluous. If `has_a_sim` is assumed, why define a constant and put an if on it?
@@ -304,13 +304,13 @@ Because it solves the problems above:
 
 This has value even in simpler cases. Let’s imagine we’re verifying a status bar that shows an icon when a SIM is included.
 
-    assert(status_bar.has_sim_icon, …)
+    assertTrue(status_bar.has_sim_icon, …)
 
 vs.
 
     has_a_sim = True
     …
-    assert(status_bar.has_sim_icon == has_a_sim, ...)
+    assertEqual(status_bar.has_sim_icon, has_a_sim, ...)
 
 One of these is more accurate to the true behavior of the system than the other.
 
@@ -393,8 +393,8 @@ Those types of tests end up talking directly to controls, creating more customiz
             camera = Camera.launch()
             for i in xrange(count):
                 camera.take_photo()
-            assert(camera.get_thumbnail_count() == expected_thumbnails, …)
-            assert(camera.get_file_count() == expected_files, …)
+            assertEqual(camera.get_thumbnail_count, expected_thumbnails, …)
+            assertEqual(camera.get_file_count(), expected_files, …)
 
     Just keep the expression out of the assertion.
     
@@ -409,10 +409,10 @@ Those types of tests end up talking directly to controls, creating more customiz
 
 The last example above is explicit to a fault. I could have written:
 
-    assert(camera.get_thumbnail_count() == count, …)
-    assert(camera.get_file_count() == count * 2, …)
+    assertEqual(camera.get_thumbnail_count(), count, …)
+    assertEqual(camera.get_file_count(), count * 2, …)
 
-And that would still have been a correct test (aside from quibbles about the second assertion on a complex expression).
+And that would still have been a correct test (aside from quibbles about the second assertion on an expression).
 
 However, there's value in laying it out like I did in the last section. When reading the test, that one says:
 
@@ -441,8 +441,8 @@ But what if I didn't have a `count` variable?
         camera.take_a_photo()
         camera.take_a_photo()
         
-        assert(camera.get_thumbnail_count() == 2, ...)
-        assert(camera.get_file_count() == 4, ...)
+        assertEqual(camera.get_thumbnail_count(), 2, ...)
+        assertEqual(camera.get_file_count(), 4, ...)
 
 This is about as simple as it gets. It's certainly concise and easy to read. I don't like the magic numbers, but we could fix that pretty easily with:
 
@@ -464,10 +464,12 @@ So let's take it one step further:
         for i in xrange(photo_count):
             camera.take_a_photo()
         
-        assert(camera.get_thumbnail_count() == expected_thumbnails, ...)
-        assert(camera.get_file_count() == expected_files, ...)
+        assertEqual(camera.get_thumbnail_count(), expected_thumbnails, ...)
+        assertEqual(camera.get_file_count(), expected_files, ...)
 
-That's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
+You might recognize this as a similar solution to "We do care, and want or need to supply the information, but it *might* vary." above.
+
+And that's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
 We could remove `photo_count` and have:
 
