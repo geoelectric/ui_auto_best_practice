@@ -328,15 +328,17 @@ And later, if you decide to make this a variable via a defaults file, the change
 
 ## Some More Rules of Thumb:
 
-### With rare exception, acceptance test code is written at a functional level of abstraction.
+### Acceptance test code is written at a functional level of abstraction.
 
 Tests should read more or less like you’d talk to a person. They usually shouldn’t be concerned with individual keystrokes, the details of menu navigation, and other strictly mechanical operations. These should be abstracted into app objects.
 
-Similarly, tests should almost never be concerned with literal data. The test doesn’t care that “Ctrl-Shift-Meta-C” launches the calculator, it cares that “The menu sequence we’ve said belongs to the calculator launches it.” This sort of data should be abstracted elsewhere as well. At the very least, such information should be put in named constants.
+Similarly, tests should almost never be concerned with literal data. The test doesn’t care that “Ctrl-Shift-Meta-C” launches the calculator, it cares that “The key sequence we’ve said belongs to the calculator launches it.” 
 
-This is the same logic as to why selectors don’t usually belong in tests either. Aside from complexity, they’re string literals and implementation details.
+What that sequence is exactly might change, and ultimately isn't important in and of itself to someone reading the test, only what it means in the abstract. This sort of data should usually be defined outside the test as well. At the very least, if unique to the test, such information should be put in named constants.
 
-This is also usually true of raw lambda-based Waits; where they get exposed to the test, they should be wrapped with meaningful names:
+This is the same logic as to why selectors don’t belong in tests either. Aside from complexity, they’re literals and implementation details.
+
+Perhaps less obviously, this is also usually true of raw lambda- or expression-based Waits; where they get used by the test, they should be wrapped with meaningful names:
 
     login.wait_for_Submit_is_not_allowed()
     
@@ -348,31 +350,33 @@ This is also usually true of raw lambda-based Waits; where they get exposed to t
 
     Wait(...).until(lambda m: return not login.submit_button.is_enabled())
 
-If it’s a common wait, put it in the app object. If it’s very unusual and a one-off, it can live as a function in the test file, but either way it should be named with the intent in terms of the operation.
+If it’s a common wait, put it in the app object. If it’s very unusual and a one-off, it can live as a function in the test file, but either way it should be named with the intent in terms of the operation as understood by the user.
 
 If you can’t read the test out loud like a standard test scenario, that’s a warning sign. Most well-written tests consist of a string of encapsulated function calls. Their value-add is ordering those calls and making verifications.
 
-The exception will be tests specifically checking that a control matches a literal, or microchecking the behavior of the UI (e.g. when I tab from here, I end up there; or when I select this dropdown, this button becomes disabled).
+### ...except code that specifically checks UI functionality
 
-Those types of tests end up talking directly to controls, creating more customized waits, etc. Keep that code out of your basic acceptance tests and put it in separate low-level tests.
+The exception will be tests specifically checking that details like a caption matches a literal, or microchecking the behavior of the UI (e.g. when I tab from here, I end up there; or when I select this dropdown, this button becomes disabled).
 
-### Tests are still code, and common code best practices still apply.
+Those types of tests end up talking directly to controls, creating more customized waits, etc. Keep that code out of your acceptance tests and put it in separate low-level tests.
 
-* Don’t use magic values unless you really mean to test against a raw value with no other semantic meaning. This is rare. Name your literal values if at all reasonable, even to use them once.
+### Test automation is still code, and common code best practices still apply.
+
+* Don’t use magic values unless you really mean the raw value with no other semantic meaning. This is rare, outside of things like counts, offsets or multipliers. Name your literal values if at all reasonable with something meaningful to the test, even to use them once.
 
     The big exception here is error messages on assertions.
 
-* Functions do one thing, especially in app objects, or else they’re not really functions. The one thing a test function does is run a single test scenario.
+* Functions do one thing, especially in app objects, or else they’re not really functions.
 
 * Logic should be kept very simple in a given function. Long or winding functions are warning signs.
 
-* Don’t construct strings via concatenation or substitution, especially ones referring to externals, like URLs, selectors, control names, etc.
+* Don’t construct strings via concatenation or substitution, especially ones referring to external resources, like URLs, selectors, control captions, etc.
 
     It adds an unnecessary level of complexity, and since you don’t actually own those strings they may change out from under you in a way that makes your construction not work anymore. Acceptance tests also often need to be localized so they can be run on l10n builds, and constructed strings aren’t localizable.
 
 * Don’t rely on comments or error messages over proper naming and explicit, clear code.
 
-    The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages, assuming they even supply them.
+    The code will be better reviewed and better maintained than comments or error messages. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages, assuming they even supply them.
     
     More to the point, if you have to read the code, realize you don't know what it means, read the error/comment, then read the code again, you've already read three times as much as you should have. Even worse, maybe you *think* you know what it means...but you're wrong. Fun times ahead.
     
@@ -385,16 +389,22 @@ Those types of tests end up talking directly to controls, creating more customiz
 * As above, flow logic is a warning sign in tests. Make sure it’s really the right thing to do. Most tests don't require logic.
 
     An exception is for loops in tests that generate something against the system. Those can be valuable for seeing if generating a lot of something causes issues.
+    
+* The one thing a test function does is run a single test scenario. Acceptance test scenarios often perform multiple functions against the system. Do not confuse this with the test function doing multiple things: one flow sequence is one thing.
+
+* Underscoring the no magic values code practice, verifying against a literal magic value is a warning sign. If the value can be named meaningfully, do so.
+
+    The problem with magic values is that you often don't know their significance. This is bad everywhere, but especially bad in a verification as that will determine the correctness of the test. Naming these values both better documents the test and makes the code significantly more reviewable. This is covered more below.
 
 * Generally, don’t verify against an expression. Assign expressions to variables, then verify that.
 
     This does not apply to simple unary operations like negating flags or simple comparisons like X == something, but does to most other kinds of expressions.
 
-    The reasons to do this are avoiding yet another type of magic value (expressions are this as well if not very obvious) and because you can easily do a log or debug watch against a named value, but not against an inline expression.
+    By assigning expressions to a named variable, you avoid yet another type of magic value--expressions are this as well if not very obvious. It also serves maintenance, as you can easily do a log or debug watch against a named value, but not against an inline expression.
 
-* Only compute verification values if you’re testing a rule that is that computation
+* Only compute verification values if you’re testing a rule that includes that computation
 
-    If your rule is that when I take two pictures, I get two thumbnails but four photo files (HDR and non-HDR?) it’s perfectly appropriate to have:
+    If the rule is that when I take two pictures, I get two thumbnails but twice as many photo files (HDR and non-HDR?) it’s perfectly appropriate to have:
 
         def test_take_photos(count):
             expected_thumbnails = count
@@ -407,15 +417,12 @@ Those types of tests end up talking directly to controls, creating more customiz
             
             assertEqual(camera.get_thumbnail_count, expected_thumbnails, …)
             assertEqual(camera.get_file_count(), expected_files, …)
-
-    Just keep the expression out of the assertion.
     
     This corresponds exactly to the rules:
     
     * Given _count_ times to do it, when I take that many photos I have that many thumbnails.
     * Given _count_ times to do it, when I take that many photos I have twice that many files
 
-    You could choose to take `count` and `file_count` separately as parameters, but now you’re no longer testing the business rule, you’re testing that whoever supplied the information did it correctly according to the business rule.
 
 ### Make the tests explicit about their assumptions and their intent.
 
@@ -490,10 +497,28 @@ We could remove `photo_count` and have:
     expected_thumbnails = 2
     expected_files = expected_thumbnails * 2
     
-That would address my core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `photo_count` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
+That would address the core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `photo_count` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
 
-There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
+Finally, you might consider patterns around data-driven tests and try:
 
-Remember that the goal is not just to understand the automation, it's to understand the intent of the automation and the assumptions designed into it: together these, along with any input data, comprise the test. 
+    def test_take_photos(count, expected_thumbnails, expected_files):
+        camera = Camera.launch()
+        
+        for i in xrange(count):
+            camera.take_a_photo()
+        
+        assertEqual(camera.get_thumbnail_count(), expected_thumbnails, ...)
+        assertEqual(camera.get_file_count(), expected_files, ...)
+        
+    test_take_photos(2, expected_thumbnails=2, expected_files=4)
+    test_take_photos(3, expected_thumbnails=3, expected_files=6)
+
+But at this point, not only are you not documenting the relationship, you're actually more testing that the person who defined the test data knows the business rule than anything. "Given I take 3 photos, if test data is correct, then I have 3 thumbnails and 6 files". Not as useful, not as robust.
+
+This pattern of supplying the verification values as parameters should be reserved for instances where the expected state can't reasonably be known by the test, like whether a given login should succeed. Don't use it to avoid coding rules surrounding relationships that are part of the system; when in scope of and significant to the test, those belong in the test function.
+
+Overall, there is a lot of value in separating the rules you are testing from the assertions and making them stand alone as explicit code, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
+
+Remember that the goal is not just to understand the automation, it's to understand the intent of the automation and the assumptions designed into it: together these, along with any input data, comprise the actual test. 
 
 Always write your code to represent the test as clearly as possible.
