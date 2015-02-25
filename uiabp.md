@@ -466,4 +466,4 @@ That would address my core issue with not documenting the relationship. But it's
 
 There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
 
-Remember that the goal is not just to understand the automation, it's to understand the intent of the automation. Always write to the intent and clearly communicate assumptions.
+Remember that the goal is not just to understand the automation, it's to understand the intent of the automation and the assumptions designed into it. Always write to the intent and clearly communicate assumptions.
