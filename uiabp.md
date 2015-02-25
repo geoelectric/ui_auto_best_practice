@@ -10,29 +10,34 @@
 
     def test_wizard(back_and_forth=False):
         wizard = Wizard.launch()
+        
         …verify page state…
         wizard.change_stuff()
         wizard.next()
+        
         if back_and_forth:
             wizard.previous()
             …verify state still there…
             wizard next()
+        
         …verify page state…
         wizard.change_stuff()
         wizard next()
+        
         if back_and_forth:
             wizard.previous()
             …verify state still there…
             wizard next()
+        
         …verify page state…
         wizard.change_stuff()
         # etc
 
 ###### Why Not?
 
-1. Complexity obscures test flow. Can kind of tell what the back_and_forth version does, but not the regular version.
+1. Complexity obscures the test flow. We can kind of tell what the back_and_forth version does, but it's much more difficult to understand the regular version.
 
-2. Combines two scenarios: advance through wizard, and go back and forth to check for data retention on each page. Not cohesive. Function = one intent.
+2. This combines two distinct scenarios: advance through wizard; and go back and forth to check for data retention on each page. This is not cohesive. A cohesive function serves one intent.
 
 This should be two different tests.
 
@@ -40,8 +45,10 @@ This should be two different tests.
 
     def test_login(username, password, should_succeed):
         login = Login.launch()
+        
         current_page = login.attempt_login(username, password)
         succeeded = current_page != login
+        
         assertEqual(succeeded, should_succeed, …)
 
 Elsewhere:
@@ -71,11 +78,14 @@ In practice, whether this is appropriate will depend on whether you're set up to
         
     @classmethod
     def Calculator.launch(cls, method=METHOD_SHORTCUT):
+        go_home()
+        
         if method == METHOD_SHORTCUT:
             type_keys(SHORTCUT_CALCULATOR)
         elif method == METHOD_MENU:
             select_menu(MENU_CALCULATOR)
         # etc.
+        
         return Calculator()
 
     test_launch_calculator(METHOD_SHORTCUT)
@@ -391,8 +401,10 @@ Those types of tests end up talking directly to controls, creating more customiz
             expected_files = 2 * count
             
             camera = Camera.launch()
+            
             for i in xrange(count):
                 camera.take_photo()
+            
             assertEqual(camera.get_thumbnail_count, expected_thumbnails, …)
             assertEqual(camera.get_file_count(), expected_files, …)
 
@@ -438,6 +450,7 @@ But what if I didn't have a `count` variable?
 
     def test_take_photos():
         camera = Camera.launch()
+        
         camera.take_a_photo()
         camera.take_a_photo()
         
@@ -461,6 +474,7 @@ So let's take it one step further:
         expected_files = photo_count * 2
         
         camera = Camera.launch()
+        
         for i in xrange(photo_count):
             camera.take_a_photo()
         
@@ -480,6 +494,6 @@ That would address my core issue with not documenting the relationship. But it's
 
 There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
 
-Remember that the goal is not just to understand the automation, it's to understand the intent of the automation and the assumptions designed into it: together, these comprise the test. 
+Remember that the goal is not just to understand the automation, it's to understand the intent of the automation and the assumptions designed into it: together these, along with any input data, comprise the test. 
 
 Always write your code to represent the test as clearly as possible.
