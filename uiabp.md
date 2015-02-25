@@ -89,6 +89,8 @@ In practice, whether this is appropriate will depend on whether you're set up to
 
 3. You still have single point of change via the `SHORTCUT_` and `MENU_` constants.
 
+4. The test can be data-driven.
+
 ##### Why not?
 
 You could argue it’s two different scenarios.
@@ -99,7 +101,7 @@ That’s because the flow details of how you type in a shortcut or manipulate th
 
 But these cases are pretty rare. If the flow is important to the test, it should be in the test. If multiple flows are important, that’s multiple tests.
 
-However, if you're finding that you're only splitting the test on behavior that's completely contained in the app object anyway, then moving the basis for the split into the app object might make sense.
+However, if you're finding that you're only splitting the test on behavior that's completely contained in the app object anyway, then moving the basis for the split into the app object might make sense. It'll possibly let you data-drive related tests for significant code reduction.
 
 ### Tests that vary flow based on variations in the Application flow
 
