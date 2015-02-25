@@ -416,6 +416,8 @@ This is more obvious than the shorter version:
 2. I'm now checking that the real thumbnail count matches how many times I took photos.
 3. I'm now checking that the real file count matches twice as many times I took photos.
 
+It also explains important relationships at the beginning, where they can help inform why the test was written that way to begin with. That makes this sort of pattern useful even in languages where normally you'd declare and assign variables closest to first use. Instead, you're declaring and assigning them closest to *first relevance to the reader*, the beginning of the test. 
+
 This is a simple example, and it's frankly overkill for something this trivial. In real code, I might very well go with the second way.
 
 But what if I didn't have a `count` variable?
@@ -455,4 +457,4 @@ That's much clearer. The rules are enumerated at the top, the relationship betwe
 
 There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions.
 
-You should never have to work backwards from an assertion to figure out the rule being tested.
+You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
