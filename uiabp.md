@@ -457,6 +457,13 @@ So let's take it one step further:
 
 That's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
-There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions.
+We could remove `photo_count` and have:
 
-You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
+    expected_thumbnails = 2
+    expected_files = expected_thumbnails * 2
+    
+That would address my core issue with not documenting the relationship. But it's not quite accurate. Thumbnails correlate with files but they don't cause them. By introducing `photo_count` it's absolutely clear that these two things both depend on the same variable, but not each other. The test is accurately communicated.
+
+There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
+
+Remember that the goal is not just to understand the automation, it's to understand the intent of the automation. Always write to the intent.
