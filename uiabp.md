@@ -174,7 +174,7 @@ What you’re not testing is the rule that leads to `optional_condition` being `
 
 But this can be OK, if the rule behind `optional_condition` isn’t something you’ve decided to care about. There’s a major advantage that your test will be much more robust for the things you do care about.
 
-Usually, internal consistency issues ultimately have a root. For example, once you have a SIM, the back end API registers it, and everything else is consistent with the back end API.
+You can balance these concerns. Usually, internal consistency issues ultimately have a root. For example, once you have a SIM, the back end API registers it, and everything else is consistent with the back end API.
 
 That makes one effective compromise to make almost all of your tests aim for internal runtime consistency, except for the one test elsewhere that verifies that the root reflects the external condition, or at least spot-checks the black-box side effects separately.
 
