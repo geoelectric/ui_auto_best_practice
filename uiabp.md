@@ -41,7 +41,8 @@ This should be two different tests.
     def test_login(username, password, should_succeed):
         login = Login.launch()
         current_page = login.attempt_login(username, password)
-        assertEqual(current_page != login, should_succeed, …)
+        succeeded = current_page != login
+        assert(succeeded == should_succeed, …)
 
 Elsewhere:
 
