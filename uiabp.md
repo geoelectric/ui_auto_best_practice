@@ -358,7 +358,7 @@ Those types of tests end up talking directly to controls, creating more customiz
 
     The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages, assuming they even supply them.
     
-    More to the point, if you have to read the code, realize you don't know what it means, read the error/comment, then read the code again, you've already read three times as much as you should have.
+    More to the point, if you have to read the code, realize you don't know what it means, read the error/comment, then read the code again, you've already read three times as much as you should have. Even worse, maybe you *think* you know what it means...but you're wrong. Fun times ahead.
     
     Finally, part of code review is checking that comments and error messages are accurate. If you can't understand the code without them, you won't be able to do this.
     
