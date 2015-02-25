@@ -416,7 +416,9 @@ This is more obvious than the shorter version:
 2. I'm now checking that the real thumbnail count matches how many times I took photos.
 3. I'm now checking that the real file count matches twice as many times I took photos.
 
-It also explains important relationships at the beginning, where they can help inform why the test was written that way to begin with. That makes this sort of pattern useful even in languages where normally you'd declare and assign variables closest to first use. Instead, you're declaring and assigning them closest to *first relevance to the reader*, the beginning of the test. 
+It also explains important relationships at the beginning, where they can help inform why the test was written that way to begin with. 
+
+That makes this sort of pattern useful even in languages where normally you'd declare and assign variables closest to first use. Instead, you're declaring and assigning them closest to *first relevance to the reader*, the beginning of the test. 
 
 This is a simple example, and it's frankly overkill for something this trivial. In real code, I might very well go with the second way.
 
