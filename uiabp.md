@@ -112,7 +112,7 @@ For the purposes of this example, assume for now that we don’t know when the p
         assert(…verify page…)
         vwizard.next()
         
-    if vwizard.current_page == wizard.OPTIONAL_PAGE:
+    if vwizard.current_page == vwizard.OPTIONAL_PAGE:
         assert(…verify page…)
         vwizard.next()
 
@@ -160,7 +160,7 @@ So that middle block looks like:
     optional_condition = get_back_end_status(…)
     …
     if optional_condition:
-        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
         assert(…verify page…)
         vwizard.next()
 
@@ -235,7 +235,7 @@ I would only recommend splitting tests out when they have natural, cohesive spli
 Another way is to have a single test that has a maybe block, using a hint you explicitly send in:
 
     if testvars.has_a_sim:
-        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
         assert(…verify page…)
         vwizard.next()
 
@@ -282,7 +282,7 @@ So in this case, you take a hybrid approach between the last two methods.
     has_a_sim = True
     …
     if has_a_sim:
-        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(vwizard.current_page == vwizard.OPTIONAL_PAGE, …)
         assert(…verify page…)
         vwizard.next()
 
