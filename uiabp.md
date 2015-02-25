@@ -393,7 +393,7 @@ Those types of tests end up talking directly to controls, creating more customiz
 
     You could choose to take `count` and `file_count` separately as parameters, but now you’re no longer testing the business rule, you’re testing that whoever supplied the information did it correctly according to the business rule.
 
-### Make the tests explicit.
+### Make the tests explicit about their assumptions and their intent.
 
 The last example above is explicit to a fault. I could have written:
 
@@ -466,4 +466,4 @@ That would address my core issue with not documenting the relationship. But it's
 
 There is a lot of value in splitting out the rules you are testing and getting them out of the assertions, even when they aren't complex expressions. You should never have to work backwards from an assertion to figure out the rule being tested or understand the test.
 
-Remember that the goal is not just to understand the automation, it's to understand the intent of the automation. Always write to the intent.
+Remember that the goal is not just to understand the automation, it's to understand the intent of the automation. Always write to the intent and clearly communicate assumptions.
