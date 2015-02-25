@@ -332,7 +332,7 @@ And later, if you decide to make this a variable via a defaults file, the change
 
 Tests should read more or less like you’d talk to a person. They usually shouldn’t be concerned with individual keystrokes, the details of menu navigation, and other strictly mechanical operations. These should be abstracted into app objects.
 
-Similarly, tests should almost never be concerned with literal data. The test doesn’t care that “Ctrl-Shift-Meta-C” launches the calculator, it cares that “The key sequence we’ve said belongs to the calculator launches it.” 
+Similarly, tests should almost never be concerned with literal data. The test doesn’t care that `Ctrl-Shift-Meta-C` launches the calculator, it cares that “The key sequence we’ve said belongs to the calculator launches it.” 
 
 What that sequence is exactly might change, and ultimately isn't important in and of itself to someone reading the test, only what it means in the abstract. This sort of data should usually be defined outside the test as well. At the very least, if unique to the test, such information should be put in named constants.
 
@@ -398,19 +398,19 @@ Those types of tests end up talking directly to controls, creating more customiz
 
 * Give every verification and Wait a meaningful error message to the operation or verification being performed.
 
-    A test failure log should, as much as possible, stand alone in calling out what the problem is. Having a default error message like "False is not equal to True" will not communicate that effectively, whereas "Should have shown a SIM icon" will.
+    A test failure log should, as much as possible, stand alone in calling out what the problem is. Having a default error message like `False is not equal to True` will not communicate that effectively, whereas `Should have shown a SIM icon` will.
     
-    Remember also that Waits are a form of implicit verification. These should also be given meaningful error messages, like "Calculator should launch," not "Timeout on e = find_element(calculator_main_selector).isVisible()"
+    Remember also that Waits are a form of implicit verification. These should also be given meaningful error messages, like `Calculator should launch`, not `Timeout on e = find_element(calculator_main_selector).isVisible()`
 
 * Make sure you know whether verification and Wait messages are supposed to reflect an error condition or a success condition.
 
-    This varies from test system to test system. Some systems standardize on something like "FAIL: Calculator dialog appeared", others standardize on "FAIL: Calculator dialog did not appear". 
+    This varies from test system to test system. Some systems standardize on the success path like `FAIL: Calculator dialog appeared`, others standardize on the failure path `FAIL: Calculator dialog did not appear`. 
     
-    The difference is usually whether they have a verbose mode that prints all messages even on pass. If so, they usually go with the first one. If not, they go with the second one since it only appears on an error condition.
+    The difference is usually whether they have a verbose mode that prints all messages even on pass. If so, they usually go with the first one, so you get `PASS: Calculator dialog appeared` in the verbose log. If not, they go with the second one since it only appears on an error condition.
     
-    One way to handle this is to make the message reflect the expected behavior, like "FAIL: Calculator dialog should appear." By making the message call out the expected behavior, rather than just the actual behavior, it will make sense under either standard. 
+    A safer way to handle this is to make the message reflect the expected behavior, instead, like `FAIL: Calculator dialog should appear`. By making the message call out the expected behavior, rather than just the actual behavior, it will make sense under either standard. 
     
-    For boolean checks, just calling out the expected behavior is sufficient; the actual behavior is implied by the PASS/FAIL. If verifying against other types of values, like a specific count, a construct like "Should have %d icons, actually have %d" % (expected, actual) will serve a similar purpose.
+    For boolean checks, just calling out the expected behavior is sufficient; the actual behavior is implied by the PASS/FAIL. If verifying against other types of values, like a specific count, a construct like `Should have %d icons, actually have %d" % (expected, actual)` will serve a similar purpose.
 
 * Generally, don’t verify against an expression. Assign expressions to variables, then verify that.
 
