@@ -38,15 +38,15 @@ This should be two different tests.
 
 #### Tests with *value* parameters: OK
 
-  def test_login(username, password, should_succeed):
-    login = Login.launch()
-    current_page = login.attempt_login(username, password)
-    assertEqual(current_page != login, should_succeed, …)
+    def test_login(username, password, should_succeed):
+        login = Login.launch()
+        current_page = login.attempt_login(username, password)
+        assertEqual(current_page != login, should_succeed, …)
 
 Elsewhere:
 
-  test_login('joe', 'user', should_succeed=True)
-  test_login('bob', 'luser', should_succeed=False)
+    test_login('joe', 'user', should_succeed=True)
+    test_login('bob', 'luser', should_succeed=False)
 
 ##### Why?
 
@@ -62,21 +62,21 @@ This one is simple, so if you decided to split it into `test_successful_login()`
 
 #### Tests with behavior parameters, where the logic is encapsulated in the app object: Can be OK
 
-  def test_launch_calculator(method):
-    calculator = Calculator.launch(method)
-    assert(calculator is not None, …)
+    def test_launch_calculator(method):
+        calculator = Calculator.launch(method)
+        assert(calculator is not None, …)
+        
+    @classmethod
+    def Calculator.launch(cls, method=METHOD_SHORTCUT):
+        if method == METHOD_SHORTCUT:
+            type_keys(SHORTCUT_CALCULATOR)
+        elif method == METHOD_MENU:
+            select_menu(MENU_CALCULATOR)
+        # etc.
+        return Calculator()
 
-  @classmethod
-  def Calculator.launch(cls, method=METHOD_SHORTCUT):
-    if method == METHOD_SHORTCUT:
-      type_keys(SHORTCUT_CALCULATOR)
-    elif method == METHOD_MENU:
-      select_menu(MENU_CALCULATOR)
-    # etc.
-    return Calculator()
-
-  test_launch_calculator(METHOD_SHORTCUT)
-  test_launch_calculator(METHOD_MENU)
+    test_launch_calculator(METHOD_SHORTCUT)
+    test_launch_calculator(METHOD_MENU)
 
 ##### Why?
 
@@ -106,14 +106,14 @@ Here is a case where the wizard is normally two pages, but sometimes there’s a
 
 For the purposes of this example, assume for now that we don’t know when the page will pop up; it’s random, but there’s a consistent point where it’ll happen if it’s going to happen.
 
-  def test_variable_wizard():
-    vwizard = VWizard.launch()
-    assert(…verify page…)
-    vwizard.next()
-
+    def test_variable_wizard():
+        vwizard = VWizard.launch()
+        assert(…verify page…)
+        vwizard.next()
+        
     if vwizard.current_page == wizard.OPTIONAL_PAGE:
-      assert(…verify page…)
-      vwizard.next()
+        assert(…verify page…)
+        vwizard.next()
 
     assert(…verify page…)
     vwizard.finish()
@@ -156,12 +156,12 @@ Since the information is gathered at runtime, this necessarily means parameteriz
 
 So that middle block looks like:
 
-  optional_condition = get_back_end_status(…)
-  …
-  if optional_condition:
-    assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
-    assert(…verify page…)
-    vwizard.next()
+    optional_condition = get_back_end_status(…)
+    …
+    if optional_condition:
+        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(…verify page…)
+        vwizard.next()
 
 What’s changed is that based on what I know now of the optional condition, I know whether to expect `OPTIONAL_PAGE`. I can verify based on that condition, that the system acted in a way that was self-consistent.
 
@@ -195,31 +195,31 @@ But in this particular case we have a lot of code that’s always the same and a
 
 For this kind of test, segmenting isn’t an awful option. It’s a wizard, so you have a natural split between pages. So it’s conceivable to split out into `verify_page_start`, `verify_page_optional`, `verify_page_finish`, and have one test that wraps the tests for start and finish pages, and another that includes optional between them.
 
-  def verify_page_start():
-    assert(...verify page...)
-
-  def verify_page_optional():
-    # split out for symmetry
-    assert(...verify page...)
-
-  def verify_page_end():
-    assert(...verify page...)
-
-  def test_variable_wizard_with_sim():
-    vwizard = VWizard.launch()
-    verify_page_start()
-    vwizard.next()
-    verify_page_optional()
-    vwizard.next()
-    verify_page_end()
-    vwizard.finish()
-
-  def test_variable_wizard_without_sim():
-    vwizard = VWizard.launch()
-    verify_page_start()
-    vwizard.next()
-    verify_page_end()
-    vwizard.finish()
+    def verify_page_start():
+        assert(...verify page...)
+        
+    def verify_page_optional():
+        # split out for symmetry
+        assert(...verify page...)
+        
+    def verify_page_end():
+        assert(...verify page...)
+        
+    def test_variable_wizard_with_sim():
+        vwizard = VWizard.launch()
+        verify_page_start()
+        vwizard.next()
+        verify_page_optional()
+        vwizard.next()
+        verify_page_end()
+        vwizard.finish()
+        
+    def test_variable_wizard_without_sim():
+        vwizard = VWizard.launch()
+        verify_page_start()
+        vwizard.next()
+        verify_page_end()
+        vwizard.finish()
 
 That's a lot more code, but in a more realistic scenario where you do more per page, it won't be as much overhead. Maybe it's worth it.
 
@@ -233,10 +233,10 @@ I would only recommend splitting tests out when they have natural, cohesive spli
 
 Another way is to have a single test that has a maybe block, using a hint you explicitly send in:
 
-  if testvars.has_a_sim:
-    assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
-    assert(…verify page…)
-    vwizard.next()
+    if testvars.has_a_sim:
+        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(…verify page…)
+        vwizard.next()
 
 In this case, we’re pulling from a test variables file. Depending on how your tests are run, you can also supply this as a parameter to the test function.
 
@@ -251,14 +251,14 @@ Ex: “If I’ve put a SIM in the phone, the optional page pops up. All phones w
 
 This one’s easy, bake it into the test. This is just echoing the assumptions surrounding your usual, basic test code, after all.  At this point, you have no maybe block. You just assume a SIM is there, and `OPTIONAL_PAGE` isn’t really optional anymore.
 
-  def test_not_variable_wizard():
-    nvwizard = NVWizard.launch()
-    assert(…verify page…)
-    nvwizard.next()
-    assert(…verify page…)
-    nvwizard.next()
-    assert(…verify page…)
-    nvwizard.finish()
+    def test_not_variable_wizard():
+        nvwizard = NVWizard.launch()
+        assert(…verify page…)
+        nvwizard.next()
+        assert(…verify page…)
+        nvwizard.next()
+        assert(…verify page…)
+        nvwizard.finish()
 
 You’re still kind of testing a rule: Given *the test designer was right that I always have a SIM*, if I hit next, I land on `OPTIONAL_PAGE`.
 
@@ -278,12 +278,12 @@ The smart thing to do is account for that. This is what constants are made for.
 
 So in this case, you take a hybrid approach between the last two methods.
 
-  has_a_sim = True
-  …
-  if has_a_sim:
-    assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
-    assert(…verify page…)
-    vwizard.next()
+    has_a_sim = True
+    …
+    if has_a_sim:
+        assert(vwizard.current_page == wizard.OPTIONAL_PAGE, …)
+        assert(…verify page…)
+        vwizard.next()
 
 At first glance, this seems superfluous. If `has_a_sim` is assumed, why define a constant and put an if on it?
 
@@ -297,13 +297,13 @@ Because it solves the problems above:
 
 This has value even in simpler cases. Let’s imagine we’re verifying a status bar that shows an icon when a SIM is included.
 
-  assert(status_bar.has_sim_icon, …)
+    assert(status_bar.has_sim_icon, …)
 
 vs.
 
-  has_a_sim = True
-  …
-  assert(status_bar.has_sim_icon == has_a_sim, ...)
+    has_a_sim = True
+    …
+    assert(status_bar.has_sim_icon == has_a_sim, ...)
 
 One of these is more accurate to the true behavior of the system than the other.
 
@@ -321,13 +321,17 @@ This is the same logic as to why selectors don’t usually belong in tests eithe
 
 This is also usually true of raw lambda-based Waits; where they get exposed to the test, they should be wrapped with meaningful names:
 
-  login.wait_for_Submit_disabled()
+    login.wait_for_Submit_is_not_allowed()
+    
+-or-
+
+    login.wait_for_Submit_is_allowed(False)
 
 -not-
 
-  Wait(...).until(lambda m: return not login.submit_button.is_enabled())
+    Wait(...).until(lambda m: return not login.submit_button.is_enabled())
 
-If it’s a common wait, put it in the app object. If it’s very unusual and a one-off, it can live as a function in the test file, but either way it should be named with the intent.
+If it’s a common wait, put it in the app object. If it’s very unusual and a one-off, it can live as a function in the test file, but either way it should be named with the intent in terms of the operation.
 
 If you can’t read the test out loud like a standard test scenario, that’s a warning sign. Most well-written tests consist of a string of encapsulated function calls. Their value-add is ordering those calls and making verifications.
 
@@ -339,7 +343,7 @@ Those types of tests end up talking directly to controls, creating more customiz
 
 * Don’t use magic values unless you really mean to test against a raw value with no other semantic meaning. This is rare. Name your literal values if at all reasonable, even to use them once.
 
-  The big exception here is error messages on assertions.
+    The big exception here is error messages on assertions.
 
 * Functions do one thing, especially in app objects, or else they’re not really functions. The one thing a test function does is run a single test scenario.
 
@@ -347,48 +351,53 @@ Those types of tests end up talking directly to controls, creating more customiz
 
 * Don’t construct strings, especially ones referring to externals, like URLs, selectors, control names, etc.
 
-  It adds an unnecessary level of complexity, and since you don’t actually own those strings they may change out from under you in a way that makes your construction not work anymore. Acceptance tests also often need to be localized so they can be run on l10n builds, and constructed strings aren’t localizable.
+    It adds an unnecessary level of complexity, and since you don’t actually own those strings they may change out from under you in a way that makes your construction not work anymore. Acceptance tests also often need to be localized so they can be run on l10n builds, and constructed strings aren’t localizable.
 
 * Don’t rely on comments or error messages over proper naming and explicit code.
 
-  The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages.
+    The code will be better reviewed and better maintained than comments or strings. Most people know to change the code if the intention has changed. They don’t necessarily change the comments or even error messages.
 
 ### And there are some test best practices as well:
 
 * As above, flow logic is a warning sign in tests. Make sure it’s really the right thing to do. Most tests don't require logic.
 
-  An exception is for loops in tests that generate something against the system. Those can be valuable for seeing if generating a lot of something causes issues.
+    An exception is for loops in tests that generate something against the system. Those can be valuable for seeing if generating a lot of something causes issues.
 
 * Generally, don’t verify against an expression. Assign expressions to variables, then verify that.
 
-  This does not apply to simple unary operations like negating flags or simple comparisons like X == something, but does to most other kinds of expressions.
+    This does not apply to simple unary operations like negating flags or simple comparisons like X == something, but does to most other kinds of expressions.
 
-  The reasons to do this are avoiding yet another type of magic value (expressions are this as well if not very obvious) and because you can easily do a log or debug watch against a named value, but not against an inline expression.
+    The reasons to do this are avoiding yet another type of magic value (expressions are this as well if not very obvious) and because you can easily do a log or debug watch against a named value, but not against an inline expression.
 
 * Only compute verification values if you’re testing a rule that is that computation
 
-  If your rule is that when I take two pictures, I get two thumbnails but four photo files (HDR and non-HDR?) it’s perfectly appropriate to have:
+    If your rule is that when I take two pictures, I get two thumbnails but four photo files (HDR and non-HDR?) it’s perfectly appropriate to have:
 
-    def test_take_photos(count):
-      expected_thumbnails = count
-      expected_files = 2 * count
-      …
-      assert(get_thumbnail_count() == expected_thumbnails, …)
-      assert(get_file_count() == expected_files, …)
+        def test_take_photos(count):
+            expected_thumbnails = count
+            expected_files = 2 * count
+            
+            camera = Camera.launch()
+            for i in xrange(count):
+                camera.take_photo()
+            assert(camera.get_thumbnail_count() == expected_thumbnails, …)
+            assert(camera.get_file_count() == expected_files, …)
 
-Just keep the expression out of the assertion.
+    Just keep the expression out of the assertion.
+    
+    This corresponds exactly to the rules:
+    
+    * Given _count_ times to do it, when I take that many photos I have that many thumbnails.
+    * Given _count_ times to do it, when I take that many photos I have twice that many files
 
-Given _count_ times to do it, when I take that many photos I have that many thumbnails.
-Given _count_ times to do it, when I take that many photos I have twice that many files
-
-You could choose to take `count` and `file_count` separately as parameters, but now you’re no longer testing the business rule, you’re testing that whoever supplied the information did it correctly according to the business rule.
+    You could choose to take `count` and `file_count` separately as parameters, but now you’re no longer testing the business rule, you’re testing that whoever supplied the information did it correctly according to the business rule.
 
 ### Make the tests explicit.
 
 The last example above is explicit to a fault. I could have written:
 
-  assert(get_thumbnail_count() == count, …)
-  assert(get_file_count() == count * 2, …)
+    assert(camera.get_thumbnail_count() == count, …)
+    assert(camera.get_file_count() == count * 2, …)
 
 And that would still have been a correct test (aside from quibbles about the second assertion on a complex expression).
 
@@ -396,7 +405,7 @@ However, there's value in laying it out like I did in the last section. When rea
 
 1. I will expect as many thumbnails as times I take photos.
 2. I will expect twice as many files as times I take photos
-3. (presumably) I'm taking photos this many times over.
+3. I'm taking photos this many times over.
 4. I'm now checking that the real thumbnail count matches my expectations.
 5. I'm now checking that the real file count matches my expectations.
 
@@ -410,25 +419,36 @@ This is a simple example, and it's frankly overkill for something this trivial. 
 
 But what if I didn't have a `count` variable?
 
-  def test_take_photos():
-    camera = Camera.launch()
-    take_a_photo()
-    take_a_photo()
-    assert(get_thumbnail_count() == 2, ...)
-    assert(get_file_count() == 4, ...)
+    def test_take_photos():
+        camera = Camera.launch()
+        camera.take_a_photo()
+        camera.take_a_photo()
+        
+        assert(camera.get_thumbnail_count() == 2, ...)
+        assert(camera.get_file_count() == 4, ...)
 
-This is about as simple as it gets, and now I have no real clue what the business rules are that are being verified. I'm smart enough to realize that probably means that the thumbnail count matches the number of photos, but the files... Do I expect photos * 2 = 4 or photos ^ 2 = 4 or photos + 2 = 4 or what?
+This is about as simple as it gets. It's certainly concise and easy to read. I don't like the magic numbers, but we could fix that pretty easily with:
 
-  def test_take_photos():
-    photo_count = 2
-    expected_thumbnails = photo_count
-    expected_files = photo_count * 2
+        expected_thumbnails = 2
+        expected_files = 4
 
-    camera = Camera.launch()
-    for i in xrange(photo_count):
-      take_a_photo()
-    assert(get_thumbnail_count() == expected_thumbnails, ...)
-    assert(get_file_count() == expected_files, ...)
+But even with that, now I have no real clue what the business rules are that are being verified. I'm smart enough to realize that probably means that the thumbnail count matches the number of photos, but the files... Do I expect photos * 2 = 4 or photos ^ 2 = 4 or photos + 2 = 4 or what? 
+
+I wouldn't be able to review this for correctness--especially since 9 times out of 10, the error message will be something about expecting 4 files, not twice as many files as photos.
+
+So let's take it one step further:
+
+    def test_take_photos():
+        photo_count = 2
+        expected_thumbnails = photo_count
+        expected_files = photo_count * 2
+        
+        camera = Camera.launch()
+        for i in xrange(photo_count):
+            take_a_photo()
+        
+        assert(get_thumbnail_count() == expected_thumbnails, ...)
+        assert(get_file_count() == expected_files, ...)
 
 That's much clearer. The rules are enumerated at the top, the relationship between files and photos is clearly articulated, and if we ever decide the test should take a different number of photos or to parameterize it--common situations, both--it's an easy change.
 
