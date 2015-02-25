@@ -36,7 +36,7 @@
 
 This should be two different tests.
 
-#### Tests with *value* parameters: OK
+#### Tests with *value* parameters: OK (if your test harness can run them)
 
     def test_login(username, password, should_succeed):
         login = Login.launch()
@@ -60,6 +60,8 @@ Elsewhere:
 The values change, but the scenario remains the same: try `username` and `password`, verify expected success. The *test case* or *test data* (same thing—depends on your terminology) changes via parameterization, but the scenario is what a test function captures.
 
 This one is simple, so if you decided to split it into `test_successful_login()` and `test_unsuccessful_login()`, that would also be reasonable. But for a larger test, it might be overkill and you may end up with a lot of flow code duplication just to save one comparison.
+
+In practice, whether this is appropriate will depend on whether you're set up to do data-driven testing. But most test frameworks have some way to define a test this way and include a series of populated calls to it in the test file or elsewhere.
 
 #### Tests with behavior parameters, where the logic is encapsulated in the app object: Can be OK
 
