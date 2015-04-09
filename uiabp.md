@@ -330,7 +330,7 @@ And later, if you decide to make this a variable via a defaults file, the change
 
 ### Acceptance test code is written at a functional level of abstraction.
 
-For acceptance, test should read more or less like you’d talk to a person. They usually shouldn’t be concerned with individual keystrokes, the details of menu navigation, and other strictly mechanical operations. These should be abstracted into app objects.
+For acceptance, tests should read more or less like you’d talk to a person. They usually shouldn’t be concerned with individual keystrokes, the details of menu navigation, and other strictly mechanical operations. These should be abstracted into app objects.
 
 Similarly, tests should almost never be concerned with literal data. The test doesn’t care that `Ctrl-Shift-Meta-C` launches the calculator, it cares that “The key sequence we’ve said belongs to the calculator launches it.” 
 
